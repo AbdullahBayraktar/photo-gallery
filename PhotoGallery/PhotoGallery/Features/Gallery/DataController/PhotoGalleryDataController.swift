@@ -9,8 +9,9 @@
 final class PhotoGalleryDataController: PhotoGalleryDataProtocol {
     
     func retrieveImagesData(completion: @escaping PhotoGalleryRequestCompletion) {
-        
-        let imagesData = FileHandler.retrieveImagesData()
-        completion(imagesData, nil)
+
+        FileHandler.retrieveImagesData() { (imagesData, error) in
+            completion(imagesData, error)
+        }
     }
 }

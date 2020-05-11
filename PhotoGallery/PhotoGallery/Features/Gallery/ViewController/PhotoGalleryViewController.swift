@@ -77,10 +77,12 @@ private extension PhotoGalleryViewController {
     func applyStateChange(_ change: PhotoGalleryState.Change) {
         DispatchQueue.main.async {
             switch change {
-                case .images:
-                    self.messageLabel.isHidden = !self.collectionView.isHidden
-                    self.collectionView.reloadData()
-                    self.scrollCollectionViewToBottom()
+                case .images(let available):
+                    if available {
+                        self.messageLabel.isHidden = !self.collectionView.isHidden
+                        self.collectionView.reloadData()
+                        self.scrollCollectionViewToBottom()
+                    }
                 case .newImage:
                     self.insertNewItemToCollectionView()
                     self.messageLabel.isHidden = !self.collectionView.isHidden
@@ -88,7 +90,9 @@ private extension PhotoGalleryViewController {
                     self.messageLabel.text = message
                     self.messageLabel.isHidden = false
                 case .error(let error):
-                    self.showAlertController(message: error?.localizedDescription)
+                    if let error = error {
+                        self.showAlertController(message: error.localizedDescription)
+                    }
             }
         }
     }

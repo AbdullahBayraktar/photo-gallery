@@ -16,8 +16,8 @@ final class PhotoGalleryState {
 
     /// Possible changes
     enum Change {
-        case images
-        case newImage
+        case images(Bool)
+        case newImage(Bool)
         case empty(message: String)
         case error(Error?)
     }
@@ -27,12 +27,12 @@ final class PhotoGalleryState {
 
     /// Images state
     fileprivate(set) var areImagesAvailable: Bool = false {
-        didSet { onChange?(.images) }
+        didSet { onChange?(.images(areImagesAvailable)) }
     }
     
     /// New image state
     fileprivate(set) var isNewImageAdded: Bool = false {
-        didSet { onChange?(.newImage) }
+        didSet { onChange?(.newImage(isNewImageAdded)) }
     }
     
     /// Availablity message state
@@ -116,11 +116,9 @@ extension PhotoGalleryViewModel {
     ///
     /// - Parameter imageData: Image data of the new image
     func addNewImageData(_ imageData: Data) {
-        DispatchQueue.global(qos: .default).async(execute: {() -> Void in
-            self.addImageToImagesList(imageData: imageData)
-            self.imagesDataList?.append(imageData)
-            self.state.isNewImageAdded = true
-        })
+        self.addImageToImagesList(imageData: imageData)
+        self.imagesDataList?.append(imageData)
+        self.state.isNewImageAdded = true
     }
 }
 
@@ -132,24 +130,23 @@ extension PhotoGalleryViewModel {
     func retrieveImages() {
         dataController.retrieveImagesData { [weak self] (imagesDataList, error) in
             
-            if error != nil {
-                self?.state.error = error
-            }
-            else if imagesDataList?.count == 0 {
+            self?.state.error = error
+            
+            if imagesDataList?.count == 0 {
                self?.state.availabilityMessage = "No photos available"
+               self?.state.areImagesAvailable = false
             }
             else {
                 self?.imagesDataList = imagesDataList
                 guard let imagesDataList = imagesDataList else {
+                    self?.state.areImagesAvailable = false
                     return
                 }
                 
-                DispatchQueue.global(qos: .default).async(execute: {() -> Void in
-                    for imageData in imagesDataList {
-                        self?.addImageToImagesList(imageData: imageData)
-                    }
-                    self?.state.areImagesAvailable = true
-                })
+                for imageData in imagesDataList {
+                    self?.addImageToImagesList(imageData: imageData)
+                }
+                self?.state.areImagesAvailable = true
             }
         }
     }

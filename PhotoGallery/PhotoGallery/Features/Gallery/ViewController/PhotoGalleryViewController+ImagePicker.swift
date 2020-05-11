@@ -33,7 +33,7 @@ extension PhotoGalleryViewController: ImagePickerDelegate {
         if let jpegData = image.jpegData(compressionQuality: 1.0) {
             DispatchQueue.global().async {
                do {
-                   try FileHandler.store(data: jpegData, forKey: UUID().uuidString)//ProcessInfo.processInfo.globallyUniqueString)
+                   try FileHandler.store(data: jpegData, forKey: ProcessInfo.processInfo.globallyUniqueString)
                } catch let error {
                    self.showAlertController(message: error.localizedDescription)
                }
