@@ -18,6 +18,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to your Camera in order to take photos</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to your Photo Library to select photos</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
