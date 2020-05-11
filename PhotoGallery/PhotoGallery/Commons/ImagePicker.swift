@@ -18,12 +18,20 @@ protocol ImagePickerDelegate: class {
 
 final class ImagePicker: NSObject {
 
+    /// Properties
     private weak var imagePickerController: UIImagePickerController?
     private weak var presentingViewController: UIViewController?
     
+    /// Delegate
     weak var delegate: ImagePickerDelegate? = nil
 
-    func presentImagePicker(parent viewController: UIViewController, sourceType: UIImagePickerController.SourceType) {
+    /// Presents image picker
+    ///
+    /// - Parameter viewController: Presenting view controller
+    /// - Parameter sourceType: Source type for the image
+    func presentImagePicker(
+        parent viewController: UIViewController,
+        sourceType: UIImagePickerController.SourceType) {
         
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
@@ -35,6 +43,7 @@ final class ImagePicker: NSObject {
         presentingViewController = viewController
     }
 
+    /// Dismisses presented image picker
     func dismiss() {
         presentingViewController?.dismiss(animated: true, completion: nil)
     }
@@ -44,6 +53,7 @@ final class ImagePicker: NSObject {
 
 extension ImagePicker {
 
+    /// Requests access to phone's camera
     func requestAccessToCamera() {
         if AVCaptureDevice.authorizationStatus(for: .video) ==  .authorized {
             DispatchQueue.main.async {
@@ -62,6 +72,7 @@ extension ImagePicker {
         }
     }
     
+    /// Requests access to photo library
     func requestAccessToPhotos() {
         let photoAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
 

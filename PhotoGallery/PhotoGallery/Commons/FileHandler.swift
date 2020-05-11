@@ -10,28 +10,43 @@ import UIKit
 
 final class FileHandler {
     
+    /// Stores file to file manager
+    ///
+    /// - Parameter data: Data of the file to be saved
+    /// - Parameter key: Key for file path
     static func store(data: Data, forKey key: String) throws {
         if let filePath = FileHandler.filePath(forKey: key) {
             try? data.write(to: filePath)
         }
     }
     
-    static func retrieveImagesData() -> [Data] {
+    /// Retrieves images data for the files located in apps document directory
+    ///
+    /// - Parameter completion: Completion block
+    static func retrieveImagesData(completion: @escaping ([Data]?, Error?) -> Void) {
         var imagesData: [Data] = []
-        
-        if let urls = FileHandler.orderedFileURLs(for: .documentDirectory) {
-            for url in urls {
-                if let fileData = FileManager.default.contents(atPath: url.path) {
-                    imagesData.append(fileData)
-                }
-            }
+        var urls: [URL]?
+        do {
+            urls = try FileHandler.orderedFileURLs(for: .documentDirectory)
+        } catch let error{
+            completion(nil, error)
         }
         
-        return imagesData
+        guard let fileURLs = urls else {
+            return
+        }
+        
+        for fileURL in fileURLs {
+            if let fileData = FileManager.default.contents(atPath: fileURL.path) {
+                imagesData.append(fileData)
+            }
+        }
+        completion(imagesData, nil)
     }
 }
 
 private extension FileHandler {
+    
     static func filePath(forKey key: String) -> URL? {
         guard let documentURL = FileManager.default.urls(
             for: .documentDirectory,
@@ -42,7 +57,7 @@ private extension FileHandler {
         return documentURL.appendingPathComponent(key + ".jpeg")
     }
 
-    static func fileUrls(for directory: FileManager.SearchPathDirectory, skipsHiddenFiles: Bool) -> [URL]? {
+    static func fileUrls(for directory: FileManager.SearchPathDirectory, skipsHiddenFiles: Bool) throws -> [URL]? {
         let documentsURL = FileManager().urls(for: directory, in: .userDomainMask)[0]
         let fileURLs = try? FileManager().contentsOfDirectory(at: documentsURL,
                                                               includingPropertiesForKeys: [],
@@ -50,9 +65,9 @@ private extension FileHandler {
         return fileURLs
     }
 
-    static func orderedFileURLs(for directory: FileManager.SearchPathDirectory, skipsHiddenFiles: Bool = true) -> [URL]? {
+    static func orderedFileURLs(for directory: FileManager.SearchPathDirectory, skipsHiddenFiles: Bool = true) throws -> [URL]? {
 
-        let fileUrls = FileHandler.fileUrls(for: .documentDirectory, skipsHiddenFiles: skipsHiddenFiles)
+        let fileUrls = try? FileHandler.fileUrls(for: .documentDirectory, skipsHiddenFiles: skipsHiddenFiles)
         let orderedFilePaths = fileUrls?.sorted(by: { (firstURL: URL, secondURL: URL) -> Bool in
              do {
                  let firstValues = try firstURL.resourceValues(forKeys: [.contentModificationDateKey])
